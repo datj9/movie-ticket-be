@@ -1,5 +1,6 @@
 const { Theater } = require("../../../models/Theater");
 const isEmpty = require("validator/lib/isEmpty");
+const mongoose = require("mongoose");
 
 const getTheaters = async (req, res) => {
     const theaters = await Theater.find();
@@ -33,6 +34,7 @@ const createTheater = async (req, res) => {
 const updateTheater = async (req, res) => {
     const { name, address } = req.body;
     const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(200).json({ id: "Typeof id is not ObjectId" });
     const theater = await Theater.findById(id);
     if (!theater) return res.status(404).json({ error: "Theater not found" });
     try {
@@ -45,6 +47,7 @@ const updateTheater = async (req, res) => {
 
 const deleteTheater = async (req, res) => {
     const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(200).json({ id: "Typeof id is not ObjectId" });
     const theater = await Theater.findById(id);
     if (!theater) return res.status(404).json({ error: "Theater not found" });
     try {
