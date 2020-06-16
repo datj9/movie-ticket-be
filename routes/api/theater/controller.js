@@ -12,10 +12,12 @@ const getTheaters = async (req, res) => {
 
 const createTheater = async (req, res) => {
     const { name, address } = req.body;
+    const errors = {};
     const theater = await Theater.findOne({ name });
     if (theater) return res.status(400).json({ error: "Theater already exists" });
-    if (!name || isEmpty(name)) return res.status(400).json({ error: "name is required" });
-    if (!address || isEmpty(address)) return res.status(400).json({ error: "address is required" });
+    if (!name || isEmpty(name)) errors.name = "name is required";
+    if (!address || isEmpty(address)) errors.address = "address is required";
+    if (Object.keys(errors).length > 0) return res.status(400).json(errors);
     const newTheater = new Theater({
         name,
         address,

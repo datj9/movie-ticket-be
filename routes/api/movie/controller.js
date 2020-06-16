@@ -1,5 +1,6 @@
 const { Movie } = require("../../../models/Movie");
 const { Genre } = require("../../../models/Genre");
+const isUrl = require("validator/lib/isURL");
 
 const getMovies = async (req, res) => {
     const movies = await Movie.find();
@@ -12,7 +13,27 @@ const getMovies = async (req, res) => {
 
 const createMovie = async (req, res) => {
     const { name, imageUrl, runningTime, genres, description } = req.body;
-    const retrievedGenres = await Genre.find().where("name").in(genres);
+    const validatedFields = ["name", "imageUrl", "runningTime", "description"];
+    const errors = {};
+    for (let field of validatedFields) {
+        if (!req.body[field] || isEmpty(req.body[field])) {
+            errors[field] = `${field} is required`;
+        }
+    }
+    if (Object.keys(errors).length === 0) return res.status(400).json(errors);
+    if (isUrl(imageUrl)) {
+        errors.imageUrl = "imageUrl must be url";
+    }
+    if (typeof runningTime != "number") {
+        errors.runningTime = "runningTime must be a number";
+    }
+    if (typeof genres != "object" || !genres.length > 0) {
+        errors.genres = "genres is invalid";
+    }
+    if (Object.keys(errors)) return res.status(400).json(errors);
+
+    const retrievedGenres = await Genre.find().where("_id").in(genres);
+    if (retrievedGenres.length === 0) return res.status(400).json({ error: "Please choose valid genres" });
     const movie = new Movie({
         name,
         imageUrl,

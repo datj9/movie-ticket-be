@@ -22,8 +22,8 @@ const createUser = async (req, res) => {
     let errors = {};
 
     for (let field of validatedFields) {
-        if (!req.body[field]) {
-            errors[field] = `Please enter ${field}`;
+        if (!req.body[field] || isEmpty(req.body[field])) {
+            errors[field] = `${field} is required`;
         }
     }
     if (Object.keys(errors).length) return res.status(500).json(errors);
@@ -43,8 +43,8 @@ const createUser = async (req, res) => {
     try {
         await newUser.save();
         const { id } = newUser;
-        const token = await createToken({ id, email, name });
-        return res.status(201).json({ token, user: { id, email, name } });
+        const token = await createToken({ id, email, name, userType: user.userType });
+        return res.status(201).json({ token });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -62,10 +62,9 @@ const signIn = async (req, res) => {
     if (!isMatch) return res.status(401).json({ error: "Password does not match" });
 
     delete user.password;
-    const token = await createToken(resData);
+    const token = await createToken({ id: user.id, email, name: user.name, userType: user.userType });
     return res.status(200).json({
         token,
-        user,
     });
 };
 
