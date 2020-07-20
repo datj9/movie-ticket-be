@@ -27,12 +27,12 @@ const createUser = async (req, res) => {
         }
     }
     if (Object.keys(errors).length) return res.status(500).json(errors);
-    if (password.length < 8) errors.password = "Password must have at least 8 characters";
-    if (password !== confirmPassword) errors.confirmPassword = "Password and confirmPassword does not match";
-    if (!isEmail(email)) errors.email = "Email is not valid";
-    if (Object.keys(errors).length) return res.status(500).json({ error: errors });
+    if (password.length < 8) errors.password = "password must have at least 8 characters";
+    if (password !== confirmPassword) errors.confirmPassword = "password and confirmPassword does not match";
+    if (!isEmail(email)) errors.email = "email is not valid";
+    if (Object.keys(errors).length) return res.status(500).json(errors);
     const user = await User.findOne({ email });
-    if (user) return res.status(400).json({ error: "Email already exists" });
+    if (user) return res.status(400).json({ error: "email already exists" });
 
     const hash = await hashPass(password, 10);
     const newUser = new User({
