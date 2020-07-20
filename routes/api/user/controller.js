@@ -42,8 +42,8 @@ const createUser = async (req, res) => {
     });
     try {
         await newUser.save();
-        const { id } = newUser;
-        const token = await createToken({ id, email, name, userType: user.userType });
+        const { _id } = newUser;
+        const token = await createToken({ id: _id, email, name, userType: user.userType });
         return res.status(201).json({ token });
     } catch (error) {
         return res.status(500).json({ error });
