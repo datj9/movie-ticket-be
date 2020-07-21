@@ -52,14 +52,16 @@ const createUser = async (req, res) => {
 
 const signIn = async (req, res) => {
     const { email, password } = req.body;
+    const errors = {};
 
-    if (isEmpty(email)) return res.status(400).json({ error: "Email is required" });
-    if (isEmpty(password)) return res.status(400).json({ error: "Password is required" });
+    if (!email) errors.email = "email is required";
+    if (!password) errors.password = "password is required";
+    if(Object.keys(errors).length) return res.status(400).json(errors);
 
     const user = await User.findOne({ email });
-    if (!user) return res.status(500).json({ error: "Email does not exist" });
+    if (!user) return res.status(500).json({ email: "email does not exist" });
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ error: "Password does not match" });
+    if (!isMatch) return res.status(401).json({ password: "password does not match" });
 
     delete user.password;
     const token = await createToken({ id: user.id, email, name: user.name, userType: user.userType });
