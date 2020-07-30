@@ -2,7 +2,7 @@ const { Movie } = require("../../../models/Movie");
 const { Genre } = require("../../../models/Genre");
 const isURL = require("validator/lib/isURL");
 const isInt = require("validator/lib/isInt");
-const mongoose = require("mongoose");
+const ObjectId = require("mongoose").Types.ObjectId;
 
 const getMovies = async (req, res) => {
     const movies = await Movie.find();
@@ -23,18 +23,20 @@ const createMovie = async (req, res) => {
         }
     }
     if (Object.keys(errors).length === 0) return res.status(400).json(errors);
-    if (isURL(imageUrl)) {
+
+    if (isURL(imageUrl + "")) {
         errors.imageUrl = "imageUrl must be URL";
     }
-    if (!isInt(runningTime)) {
+    if (!isInt(runningTime + "")) {
         errors.runningTime = "runningTime is invalid";
     }
     if (!Array.isArray(genres) || genres.length == 0) {
         errors.genres = "genres is invalid";
     }
-    if (Object.keys(errors)) return res.status(400).json(errors);
+    if (Object.keys(errors).length) return res.status(400).json(errors);
+
     for (const genreId of genres) {
-        if (!mongoose.Types.ObjectId.isValid(genreId + "")) {
+        if (!ObjectId.isValid(genreId + "")) {
             return res.status(400).json({ genres: "genres is invalid" });
         }
     }
@@ -42,6 +44,7 @@ const createMovie = async (req, res) => {
     try {
         const retrievedGenres = await Genre.find().where("_id").in(genres);
         if (retrievedGenres.length !== genres.length) return res.status(400).json({ genres: "genres not found" });
+
         const movie = new Movie({
             name,
             imageUrl,
@@ -50,6 +53,7 @@ const createMovie = async (req, res) => {
             genres: retrievedGenres,
         });
         await movie.save();
+
         return res.status(201).json(movie.transform());
     } catch (error) {
         return res.status(500).json(error);
@@ -81,16 +85,14 @@ const updateMovie = async (req, res) => {
     if (Object.keys(errors)) return res.status(400).json(errors);
 
     for (const genreId of genres) {
-        if (!mongoose.Types.ObjectId.isValid(genreId + "")) {
-            return res.status(400).json({ error: "Typeof genreId is not ObjectId" });
+        if (!ObjectId.isValid(genreId + "")) {
+            return res.status(400).json({ genres: "genres is invalid" });
         }
     }
 
-    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(200).json({ id: "genres is invalid" });
-
     try {
         const foundMovie = await Movie.findById(id);
-        if (!foundMovie) return res.status(404).json({ id: "movie not found" });
+        if (!foundMovie) return res.status(404).json({ error: "Movie not found" });
         const retrievedGenres = await Genre.find({ _id: { $in: genres } });
         if (retrievedGenres.length != genres.length) return res.status(400).json({ genres: "genres not found" });
 
