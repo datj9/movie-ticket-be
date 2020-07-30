@@ -82,7 +82,7 @@ const updateMovie = async (req, res) => {
         errors.genres = "genres is invalid";
     }
     if (typeof description != "string") errors.description = "description is invalid";
-    if (Object.keys(errors)) return res.status(400).json(errors);
+    if (Object.keys(errors).length) return res.status(400).json(errors);
 
     for (const genreId of genres) {
         if (!ObjectId.isValid(genreId + "")) {
