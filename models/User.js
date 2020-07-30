@@ -16,7 +16,7 @@ const UserSchema = new mongoose.Schema({
     },
     userType: {
         type: String,
-        default: "admin",
+        default: "client",
     },
 });
 
