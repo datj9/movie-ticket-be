@@ -1,41 +1,30 @@
-const {
-    Show
-} = require("../../../models/Show");
-const {
-    Theater
-} = require("../../../models/Theater");
-const {
-    Movie
-} = require("../../../models/Movie");
-const {
-    Ticket
-} = require("../../../models/Ticket");
+const { Show } = require("../../../models/Show");
+const { Theater } = require("../../../models/Theater");
+const { Movie } = require("../../../models/Movie");
+const { Ticket } = require("../../../models/Ticket");
 const Promise = require("bluebird");
-const isEmpty = require("validator/lib/isEmpty");
 
 const getShows = async (req, res) => {
-    const {
-        theaterId,
-        movieId,
-        movie,
-        theater
-    } = req.query;
+    const { theaterId, movieId, movie, theater } = req.query;
 
     if (movie && theater) {
-        const theaterRe = new RegExp(theater)
-        const movieRe = new RegExp(movie)
+        const theaterRe = new RegExp(theater);
+        const movieRe = new RegExp(movie);
         const shows = await Show.find({
-            'theater.name': theaterRe,
-            'movie.name': movieRe
-        }).select("-tickets")
+            "theater.name": theaterRe,
+            "movie.name": movieRe,
+        }).select("-tickets");
 
-        shows.forEach((show, i) => (shows[i] = {
-            ...show.transform(),
-            movie: show.movie.transform(),
-            theater: show.theater.transform()
-        }))
+        shows.forEach(
+            (show, i) =>
+                (shows[i] = {
+                    ...show.transform(),
+                    movie: show.movie.transform(),
+                    theater: show.theater.transform(),
+                })
+        );
 
-        return res.status(200).json(shows)
+        return res.status(200).json(shows);
     }
 
     if (theaterId) {
@@ -44,20 +33,19 @@ const getShows = async (req, res) => {
 
         shows.forEach(
             (show, index) =>
-            (shows[index] = {
-                ...show.transform(),
-                movie: show.movie.transform(),
-                theater: show.theater.transform(),
-            })
+                (shows[index] = {
+                    ...show.transform(),
+                    movie: show.movie.transform(),
+                    theater: show.theater.transform(),
+                })
         );
         movies.forEach((movie, index) => {
-            movies[index].id = movie._id;
-            delete movies[index]._id;
+            movies[index] = movie.transform();
         });
 
         return res.status(200).json({
             shows,
-            movies
+            movies,
         });
     }
 
@@ -67,11 +55,11 @@ const getShows = async (req, res) => {
 
         shows.forEach(
             (show, index) =>
-            (shows[index] = {
-                ...show.transform(),
-                movie: show.movie.transform(),
-                theater: show.theater.transform(),
-            })
+                (shows[index] = {
+                    ...show.transform(),
+                    movie: show.movie.transform(),
+                    theater: show.theater.transform(),
+                })
         );
         theaters.forEach((theater, index) => {
             theaters[index].id = theater._id;
@@ -80,7 +68,7 @@ const getShows = async (req, res) => {
 
         return res.status(200).json({
             shows,
-            theaters
+            theaters,
         });
     }
 
@@ -97,10 +85,7 @@ const getShows = async (req, res) => {
 };
 
 const createShow = async (req, res) => {
-    const {
-        theaterId,
-        movieId
-    } = req.body;
+    const { theaterId, movieId } = req.body;
     const theater = await Theater.findById(theaterId);
     const movie = await Movie.findById(movieId);
     const tickets = [];
@@ -125,10 +110,12 @@ const createShow = async (req, res) => {
             tickets,
         });
         await show.save();
+
         return res.status(201).json({
             ...show.transform(),
             movie: show.movie.transform(),
             theater: show.theater.transform(),
+            numberOfTickets: tickets.length,
         });
     } catch (error) {
         return res.status(500).json(error);
