@@ -45,7 +45,7 @@ const createMovie = async (req, res) => {
         const movie = new Movie({
             name,
             imageUrl,
-            runningTime,
+            runningTime: parseInt(runningTime),
             description,
             genres: retrievedGenres,
         });
