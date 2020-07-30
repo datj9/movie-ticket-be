@@ -6,10 +6,13 @@ const ObjectId = require("mongoose").Types.ObjectId;
 
 const getMovies = async (req, res) => {
     const movies = await Movie.find();
-    const resMovies = [];
-    for (const movie of movies) {
-        resMovies.push(movie.transform());
-    }
+    const resMovies = movies.map((movie) => {
+        const transformedGenres = movie.genres.map((genre) => genre.transform());
+        return {
+            ...movie.transform(),
+            genres: transformedGenres,
+        };
+    });
     return res.status(200).json(resMovies);
 };
 
@@ -22,9 +25,9 @@ const createMovie = async (req, res) => {
             errors[field] = `${field} is required`;
         }
     }
-    if (Object.keys(errors).length === 0) return res.status(400).json(errors);
+    if (Object.keys(errors).length) return res.status(400).json(errors);
 
-    if (isURL(imageUrl + "")) {
+    if (!isURL(imageUrl + "")) {
         errors.imageUrl = "imageUrl must be URL";
     }
     if (!isInt(runningTime + "")) {
@@ -62,7 +65,7 @@ const createMovie = async (req, res) => {
 
 const updateMovie = async (req, res) => {
     const { id } = req.params;
-    const { name, imageUrl, runningTime, genres } = req.body;
+    const { name, imageUrl, runningTime, genres, description } = req.body;
     const errors = {};
     const validatedFields = ["name", "imageUrl", "runningTime", "description"];
 
@@ -71,8 +74,9 @@ const updateMovie = async (req, res) => {
             errors[field] = `${field} is required`;
         }
     }
+    if (Object.keys(errors).length) return res.status(400).json(errors);
 
-    if (isURL(imageUrl + "")) {
+    if (!isURL(imageUrl + "")) {
         errors.imageUrl = "imageUrl is invalid";
     }
     if (!isInt(runningTime + "")) {

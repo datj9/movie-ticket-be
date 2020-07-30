@@ -31,16 +31,27 @@ const getShows = async (req, res) => {
         const shows = await Show.find().where("theater._id").eq(theaterId).select("-tickets");
         const movies = await Show.find().where("theater._id").eq(theaterId).distinct("movie");
 
-        shows.forEach(
-            (show, index) =>
-                (shows[index] = {
-                    ...show.transform(),
-                    movie: show.movie.transform(),
-                    theater: show.theater.transform(),
-                })
-        );
+        shows.forEach((show, index) => {
+            const transformedGenres = shows[index].movie.genres.map((g) => g.transform());
+
+            shows[index] = {
+                ...show.transform(),
+                movie: {
+                    ...show.movie.transform(),
+                    genres: transformedGenres,
+                },
+                theater: show.theater.transform(),
+            };
+        });
         movies.forEach((movie, index) => {
-            movies[index] = movie.transform();
+            movies[index].genres.forEach((g, j) => {
+                movies[index].genres[j].id = g._id;
+                delete movies[index].genres[j]._id;
+                delete movies[index].genres[j].__v;
+            });
+            movies[index].id = movie._id;
+            delete movies[index]._id;
+            delete movies[index].__v;
         });
 
         return res.status(200).json({

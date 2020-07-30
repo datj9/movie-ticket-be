@@ -9,7 +9,7 @@
         "start:local": "export NODE_ENV=local && node index.js",
         "start:local:win": "set NODE_ENV=local&node index.js",
         "start:staging": "export NODE_ENV=staging && node index.js",
-        "start:staging:win": "set NODE_ENV=staging&node index.js"
+        "start:staging:win": "set NODE_ENV=staging&nodemon index.js"
     },
     "dependencies": {
         "aws-sdk": "^2.658.0",
