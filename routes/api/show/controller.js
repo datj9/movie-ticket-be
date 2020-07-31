@@ -96,7 +96,7 @@ const getShows = async (req, res) => {
 };
 
 const createShow = async (req, res) => {
-    const { theaterId, movieId } = req.body;
+    const { theaterId, movieId, startTime } = req.body;
     const theater = await Theater.findById(theaterId);
     const movie = await Movie.findById(movieId);
     const tickets = [];
@@ -127,6 +127,7 @@ const createShow = async (req, res) => {
             movie: show.movie.transform(),
             theater: show.theater.transform(),
             numberOfTickets: tickets.length,
+            startTime: startTime && startTime,
         });
     } catch (error) {
         return res.status(500).json(error);
