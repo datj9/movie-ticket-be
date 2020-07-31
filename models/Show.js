@@ -3,22 +3,25 @@ const { TheaterSchema } = require("./Theater");
 const { MovieSchema } = require("./Movie");
 const { TicketSchema } = require("./Ticket");
 
-const ShowSchema = new mongoose.Schema({
-    startTime: {
-        type: Date,
-        require: true,
-        default: Date.now(),
+const ShowSchema = new mongoose.Schema(
+    {
+        startTime: {
+            type: Date,
+            require: true,
+            default: Date.now(),
+        },
+        theater: {
+            type: TheaterSchema,
+        },
+        movie: {
+            type: MovieSchema,
+        },
+        tickets: {
+            type: [TicketSchema],
+        },
     },
-    theater: {
-        type: TheaterSchema,
-    },
-    movie: {
-        type: MovieSchema,
-    },
-    tickets: {
-        type: [TicketSchema],
-    },
-});
+    { timestamps: true }
+);
 
 ShowSchema.method("transform", function () {
     const obj = this.toObject();

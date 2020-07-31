@@ -1,6 +1,5 @@
 const { Theater } = require("../../../models/Theater");
-const isEmpty = require("validator/lib/isEmpty");
-const mongoose = require("mongoose");
+const ObjectId = require("mongoose").Types.ObjectId;
 
 const getTheaters = async (req, res) => {
     const theaters = await Theater.find();
@@ -14,15 +13,23 @@ const getTheaters = async (req, res) => {
 const createTheater = async (req, res) => {
     const { name, address } = req.body;
     const errors = {};
+
     const theater = await Theater.findOne({ name });
     if (theater) return res.status(400).json({ error: "Theater already exists" });
-    if (!name || isEmpty(name)) errors.name = "name is required";
-    if (!address || isEmpty(address)) errors.address = "address is required";
-    if (Object.keys(errors).length > 0) return res.status(400).json(errors);
+
+    if (!name) errors.name = "name is required";
+    if (!address) errors.address = "address is required";
+    if (Object.keys(errors).length) return res.status(400).json(errors);
+
+    if (typeof name != "string") errors.name = "name is invalid";
+    if (typeof address != "string") errors.address = "address is invalid";
+    if (Object.keys(errors).length) return res.status(400).json(errors);
+
     const newTheater = new Theater({
         name,
         address,
     });
+
     try {
         await newTheater.save();
         return res.status(201).json(newTheater.transform());
@@ -34,9 +41,20 @@ const createTheater = async (req, res) => {
 const updateTheater = async (req, res) => {
     const { name, address } = req.body;
     const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(200).json({ id: "Typeof id is not ObjectId" });
+    const errors = {};
+
+    if (!ObjectId.isValid(id)) return res.status(200).json({ id: "Typeof id is not ObjectId" });
     const theater = await Theater.findById(id);
     if (!theater) return res.status(404).json({ error: "Theater not found" });
+
+    if (!name) errors.name = "name is required";
+    if (!address) errors.address = "address is required";
+    if (Object.keys(errors).length) return res.status(400).json(errors);
+
+    if (typeof name != "string") errors.name = "name is invalid";
+    if (typeof address != "string") errors.address = "address is invalid";
+    if (Object.keys(errors).length) return res.status(400).json(errors);
+
     try {
         await Theater.updateOne({ _id: id }, { name, address });
         return res.status(200).json({ message: "Update theater successfully" });
@@ -47,9 +65,11 @@ const updateTheater = async (req, res) => {
 
 const deleteTheater = async (req, res) => {
     const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(200).json({ id: "Typeof id is not ObjectId" });
+
+    if (!ObjectId.isValid(id)) return res.status(200).json({ id: "Typeof id is not ObjectId" });
     const theater = await Theater.findById(id);
     if (!theater) return res.status(404).json({ error: "Theater not found" });
+
     try {
         await Theater.deleteOne({ _id: id });
         return res.status(200).json({ message: "Delete theater successfully", id });

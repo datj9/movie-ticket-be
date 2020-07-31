@@ -1,24 +1,27 @@
 const mongoose = require("mongoose");
 
-const UserSchema = new mongoose.Schema({
-    email: {
-        type: String,
-        required: true,
-        unique: true,
+const UserSchema = new mongoose.Schema(
+    {
+        email: {
+            type: String,
+            required: true,
+            unique: true,
+        },
+        password: {
+            type: String,
+            required: true,
+        },
+        name: {
+            type: String,
+            required: true,
+        },
+        userType: {
+            type: String,
+            default: "client",
+        },
     },
-    password: {
-        type: String,
-        required: true,
-    },
-    name: {
-        type: String,
-        required: true,
-    },
-    userType: {
-        type: String,
-        default: "client",
-    },
-});
+    { timestamps: true }
+);
 
 UserSchema.method("transform", function () {
     const obj = this.toObject();
