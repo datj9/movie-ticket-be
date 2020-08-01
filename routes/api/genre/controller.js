@@ -56,7 +56,7 @@ const updateGenre = async (req, res) => {
 
     try {
         const updatedGenre = await Genre.updateOne({ _id: id }, { name, imageUrl }, { new: true });
-        return res.status(200).json(updatedGenre);
+        return res.status(200).json({ genre: updatedGenre, message: "Updated successfully" });
     } catch (error) {
         return res.status(500).json(error);
     }
