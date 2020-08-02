@@ -27,6 +27,7 @@ const createMovie = async (req, res) => {
     }
     if (Object.keys(errors).length) return res.status(400).json(errors);
 
+    if (typeof name != "string") errors.name = "name is invalid";
     if (!isURL(imageUrl + "")) {
         errors.imageUrl = "imageUrl must be URL";
     }
@@ -78,6 +79,7 @@ const updateMovie = async (req, res) => {
     }
     if (Object.keys(errors).length) return res.status(400).json(errors);
 
+    if(typeof name != "string") errors.name = "name is invalid";
     if (!isURL(imageUrl + "")) {
         errors.imageUrl = "imageUrl is invalid";
     }
