@@ -21,7 +21,7 @@ const createMovie = async (req, res) => {
     const validatedFields = ["name", "imageUrl", "runningTime", "description"];
     const errors = {};
     for (let field of validatedFields) {
-        if (req.body[field] != "" && !req.body[field]) {
+        if (!req.body[field]) {
             errors[field] = `${field} is required`;
         }
     }
