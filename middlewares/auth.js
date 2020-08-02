@@ -17,8 +17,8 @@ const authenticate = async (req, res, next) => {
 const authorize = (allowedUserTypes) => async (req, res, next) => {
     try {
         const { user } = req;
-        console.log(user);
-        if (allowedUserTypes.indexOf(user.userType) == -1) return res.status(403).json({ error: "User is not allowed" });
+        if (allowedUserTypes.indexOf(user.userType) == -1)
+            return res.status(403).json({ error: "User is not allowed" });
         next();
     } catch (error) {
         return res.status(403).json({ error });

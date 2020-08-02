@@ -84,15 +84,21 @@ const getShows = async (req, res) => {
     }
 
     const shows = await Show.find().select(["startTime", "theater", "movie"]);
-    const resShows = [];
-    for (show of shows) {
-        resShows.push({
+
+    shows.forEach((show, i) => {
+        const transformedGenres = show.movie.genres.map((genre, j) => (show.movie.genres[j] = genre.transform()));
+
+        shows[i] = {
             ...show.transform(),
-            movie: show.movie.transform(),
+            movie: {
+                ...show.movie.transform(),
+                genres: transformedGenres,
+            },
             theater: show.theater.transform(),
-        });
-    }
-    return res.status(200).json(resShows);
+        };
+    });
+
+    return res.status(200).json(shows);
 };
 
 const createShow = async (req, res) => {
@@ -100,6 +106,7 @@ const createShow = async (req, res) => {
     const theater = await Theater.findById(theaterId);
     const movie = await Movie.findById(movieId);
     const tickets = [];
+
     for (let i = 0; i < 8; i++) {
         const rowOfSeat = String.fromCharCode(i + 65);
         for (let j = 1; j < 9; j++) {
@@ -115,19 +122,22 @@ const createShow = async (req, res) => {
         await Promise.map(tickets, function (ticket) {
             return ticket.save();
         });
-        const show = new Show({
+        let show = new Show({
             theater,
             movie,
             tickets,
         });
         await show.save();
 
+        show.movie.genres.forEach((genre, i) => (show.movie.genres[i] = genre.transform()));
+        show.tickets.forEach((ticket, i) => (show.tickets[i] = ticket.transform()));
+
         return res.status(201).json({
-            ...show.transform(),
             movie: show.movie.transform(),
             theater: show.theater.transform(),
-            numberOfTickets: tickets.length,
             startTime: startTime && startTime,
+            numberOfTickets: tickets.length,
+            ...show.transform(),
         });
     } catch (error) {
         return res.status(500).json(error);

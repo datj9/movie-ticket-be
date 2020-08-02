@@ -10,6 +10,10 @@ app.use(express.json({ extended: true }));
 
 app.use("/api", cors(), require("./routes/api"));
 
-mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true }, () => console.log("Connect to MongoDB successfully"));
+mongoose.connect(
+    mongoURI,
+    { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: true },
+    () => console.log("Connect to MongoDB successfully")
+);
 
 app.listen(port, () => console.log(`Server is running on port ${port}`));

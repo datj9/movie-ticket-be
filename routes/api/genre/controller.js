@@ -55,8 +55,8 @@ const updateGenre = async (req, res) => {
     if (Object.keys(errors).length) return res.status(400).json(errors);
 
     try {
-        const updatedGenre = await Genre.updateOne({ _id: id }, { name, imageUrl }, { new: true });
-        return res.status(200).json({ genre: updatedGenre, message: "Updated successfully" });
+        const updatedGenre = await Genre.findOneAndUpdate({ _id: id }, { name, imageUrl }, { returnOriginal: false });
+        return res.status(200).json({ genre: updatedGenre.transform(), message: "Updated successfully" });
     } catch (error) {
         return res.status(500).json(error);
     }

@@ -56,8 +56,8 @@ const updateTheater = async (req, res) => {
     if (Object.keys(errors).length) return res.status(400).json(errors);
 
     try {
-        await Theater.updateOne({ _id: id }, { name, address });
-        return res.status(200).json({ message: "Update theater successfully" });
+        const updatedTheater = await Theater.findOneAndUpdate({ _id: id }, { name, address }, { new: true });
+        return res.status(200).json({ message: "Update theater successfully", theater: updatedTheater.transform() });
     } catch (error) {
         return res.status(500).json(error);
     }

@@ -57,6 +57,8 @@ const createMovie = async (req, res) => {
         });
         await movie.save();
 
+        movie.genres.forEach((genre, i) => (movie.genres[i] = genre.transform()));
+
         return res.status(201).json(movie.transform());
     } catch (error) {
         return res.status(500).json(error);
@@ -100,16 +102,19 @@ const updateMovie = async (req, res) => {
         const retrievedGenres = await Genre.find({ _id: { $in: genres } });
         if (retrievedGenres.length != genres.length) return res.status(400).json({ genres: "genres not found" });
 
-        await Movie.updateOne(
+        const updatedMovie = await Movie.findOneAndUpdate(
             { _id: id },
             {
                 name,
                 imageUrl,
                 runningTime: parseInt(runningTime),
                 genres: retrievedGenres,
-            }
+            },
+            { returnOriginal: false }
         );
-        return res.status(200).json({ message: "Updated successfully" });
+
+        updatedMovie.genres.forEach((genre, i) => (updatedMovie.genres[i] = genre.transform()));
+        return res.status(200).json({ message: "Updated successfully", movie: updatedMovie.transform() });
     } catch (error) {
         return res.status(500).json(error);
     }
