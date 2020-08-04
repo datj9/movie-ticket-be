@@ -124,7 +124,7 @@ const updateMovie = async (req, res) => {
 
 const deleteMovie = async (req, res) => {
     const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(200).json({ id: "Typeof id is not ObjectId" });
+    if (!ObjectId.isValid(id)) return res.status(200).json({ id: "Typeof id is not ObjectId" });
 
     try {
         const movie = await Movie.findById(id);
