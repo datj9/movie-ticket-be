@@ -125,10 +125,10 @@ const updateMovie = async (req, res) => {
 const deleteMovie = async (req, res) => {
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) return res.status(200).json({ id: "Typeof id is not ObjectId" });
-    const movie = await Movie.findById(id);
-    if (!movie) return res.status(404).json({ error: "Movie not found" });
 
     try {
+        const movie = await Movie.findById(id);
+        if (!movie) return res.status(404).json({ error: "Movie not found" });
         await Movie.deleteOne({ _id: id });
         return res.status(200).json({ message: "Deleted movie successfully", id });
     } catch (error) {
